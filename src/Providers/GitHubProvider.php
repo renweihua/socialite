@@ -83,7 +83,12 @@ class GitHubProvider extends AbstractProvider implements ProviderInterface
             return;
         }
 
-        foreach (json_decode($response->getBody(), true) as $email) {
+        if (empty($result = json_decode($response->getBody(), true))) return;
+
+        // Once a message exists, the data indicates that the acquisition fails
+        if (isset($result['message'])) return;
+
+        foreach ($result as $email) {
             if ($email['primary'] && $email['verified']) {
                 return $email['email'];
             }
